@@ -496,3 +496,254 @@ window.ViajesTable = {
     clearFilters: clearAllFilters,
     showNotification: showNotification
 };
+// ----------------------
+// INICIALIZACIÓN
+// ----------------------
+document.addEventListener('DOMContentLoaded', function() {
+    initializeVistaViajes();
+});
+
+let currentPage = 1;
+const rowsPerPage = 5;
+
+function initializeVistaViajes() {
+    // Animación suave al cargar la página
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 0.5s ease-in';
+        document.body.style.opacity = '1';
+    }, 100);
+
+    // Configurar filtros
+    setupFilters();
+
+    // Configurar animaciones de entrada
+    setupEntryAnimations();
+
+    // Configurar efectos de hover mejorados
+    setupHoverEffects();
+
+    // Configurar búsqueda en tiempo real
+    setupRealTimeSearch();
+
+    // Mostrar notificación de bienvenida (opcional)
+    showWelcomeMessage();
+
+    // Inicializar paginación
+    paginateTable();
+}
+
+// ----------------------
+// FILTROS Y BÚSQUEDA
+// ----------------------
+function setupFilters() {
+    const searchInput = document.getElementById('search');
+    const estadoSelect = document.getElementById('estado');
+    const fechaInput = document.getElementById('fecha');
+    const filterBtn = document.querySelector('.btn-filter');
+
+    if (searchInput) searchInput.addEventListener('input', debounce(filterAndPaginate, 300));
+    if (estadoSelect) estadoSelect.addEventListener('change', filterAndPaginate);
+    if (fechaInput) fechaInput.addEventListener('change', filterAndPaginate);
+    if (filterBtn) filterBtn.addEventListener('click', () => {
+        clearAllFilters();
+        filterAndPaginate();
+    });
+}
+
+function filterAndPaginate() {
+    filterTable();      // aplica filtros normales
+    currentPage = 1;    // reinicia a página 1
+    paginateTable();    // aplica paginación
+}
+
+function filterTable() {
+    const searchTerm = document.getElementById('search')?.value.toLowerCase() || '';
+    const estadoFilter = document.getElementById('estado')?.value.toLowerCase() || '';
+    const fechaFilter = document.getElementById('fecha')?.value || '';
+    const rows = document.querySelectorAll('.viaje-row');
+
+    let visibleRows = 0;
+
+    rows.forEach(row => {
+        let isVisible = true;
+
+        // Búsqueda
+        if (searchTerm && !row.textContent.toLowerCase().includes(searchTerm)) isVisible = false;
+
+        // Estado
+        const rowEstado = row.dataset.estado?.toLowerCase() || '';
+        if (estadoFilter && !rowEstado.includes(estadoFilter)) isVisible = false;
+
+        // Fecha
+        if (fechaFilter) {
+            const fechaCell = row.querySelectorAll('td')[3];
+            const fechaTexto = fechaCell ? fechaCell.textContent : '';
+            if (!fechaTexto.includes(fechaFilter)) isVisible = false;
+        }
+
+        if (isVisible) {
+            row.classList.remove('hidden');
+            row.classList.add('filtered');
+            visibleRows++;
+        } else {
+            row.classList.add('hidden');
+            row.classList.remove('filtered');
+        }
+    });
+
+    updateResultsCounter(visibleRows, rows.length);
+    showNoResultsMessage(visibleRows === 0);
+}
+
+function clearAllFilters() {
+    ['search','estado','fecha'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.querySelectorAll('.viaje-row').forEach(row => row.classList.remove('hidden','filtered'));
+    showNoResultsMessage(false);
+    updateResultsCounter(document.querySelectorAll('.viaje-row').length, document.querySelectorAll('.viaje-row').length);
+    showNotification('Filtros limpiados', 'info');
+}
+
+// ----------------------
+// PAGINACIÓN FINAL
+// ----------------------
+(function() {
+    let currentPage = 1;
+    const rowsPerPage = 10;
+
+    function paginate() {
+        // Solo filas visibles según filtros
+        const rows = Array.from(document.querySelectorAll('.viaje-row'))
+            .filter(row => !row.classList.contains('hidden'));
+
+        const totalRows = rows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+        // Ocultar todas las filas visibles
+        document.querySelectorAll('.viaje-row').forEach(row => row.style.display = 'none');
+
+        // Mostrar solo las filas de la página actual
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        rows.slice(start, end).forEach(row => row.style.display = '');
+
+        renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+        const paginationDiv = document.querySelector('.pagination');
+        if (!paginationDiv) return;
+
+        paginationDiv.innerHTML = '';
+
+        // Botón Anterior
+        const prev = document.createElement('a');
+        prev.href = '#';
+        prev.textContent = '« Anterior';
+        prev.onclick = e => {
+            e.preventDefault();
+            if (currentPage > 1) currentPage--;
+            paginate();
+        };
+        paginationDiv.appendChild(prev);
+
+        // Números de página
+        for (let i = 1; i <= totalPages; i++) {
+            const pageLink = document.createElement('a');
+            pageLink.href = '#';
+            pageLink.textContent = i;
+            if (i === currentPage) pageLink.classList.add('current');
+            pageLink.onclick = e => {
+                e.preventDefault();
+                currentPage = i;
+                paginate();
+            };
+            paginationDiv.appendChild(pageLink);
+        }
+
+        // Botón Siguiente
+        const next = document.createElement('a');
+        next.href = '#';
+        next.textContent = 'Siguiente »';
+        next.onclick = e => {
+            e.preventDefault();
+            if (currentPage < totalPages) currentPage++;
+            paginate();
+        };
+        paginationDiv.appendChild(next);
+    }
+
+    // Reiniciar paginación cada vez que se filtren filas
+    const originalFilter = filterTable;
+    filterTable = function() {
+        originalFilter();  // aplica filtros
+        currentPage = 1;   // volver a la página 1
+        paginate();        // actualizar paginación
+    };
+
+    // Inicializar al cargar
+    document.addEventListener('DOMContentLoaded', () => {
+        paginate();
+    });
+
+    // Exponer función global si necesitas refrescar
+    window.paginateTable = paginate;
+})();
+
+// ----------------------
+// TOTAL INGRESOS DEL MES ACTUAL (Automático)
+// ----------------------
+function updateIngresosMes() {
+    const rows = document.querySelectorAll('.viaje-row');
+    
+    // Detectar automáticamente la tarjeta de ingresos mes
+    const statCards = document.querySelectorAll('.stat-card');
+    let ingresosElement = null;
+    statCards.forEach(card => {
+        if (card.querySelector('h3')?.textContent.toLowerCase().includes('ingresos mes')) {
+            ingresosElement = card.querySelector('.number');
+        }
+    });
+    if (!ingresosElement) return;
+
+    let totalMes = 0;
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    rows.forEach(row => {
+        const estado = row.dataset.estado?.toLowerCase() || '';
+        if (estado === 'finalizado') {
+            let fechaCell, ingresoCell;
+            // Detectar columna fecha y columna ingreso automáticamente
+            row.querySelectorAll('td').forEach((td, index) => {
+                const headerText = document.querySelectorAll('.modern-table th')[index]?.textContent.toLowerCase();
+                if (headerText.includes('fecha')) fechaCell = td;
+                if (headerText.includes('ingreso')) ingresoCell = td;
+            });
+
+            if (fechaCell && ingresoCell) {
+                const fecha = new Date(fechaCell.textContent);
+                if (fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear) {
+                    const ingreso = parseFloat(ingresoCell.textContent.replace(/[^0-9.-]+/g,"")) || 0;
+                    totalMes += ingreso;
+                }
+            }
+        }
+    });
+
+    ingresosElement.textContent = `Q${totalMes.toFixed(2)}`;
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', updateIngresosMes);
+
+// Ejecutar al filtrar la tabla
+const originalFilterTable = filterTable;
+filterTable = function() {
+    originalFilterTable();
+    updateIngresosMes();
+};

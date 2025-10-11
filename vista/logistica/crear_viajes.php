@@ -13,7 +13,7 @@ require_once __DIR__ . "/../../controlador/ViajeController.php";
 </head>
 
 <body>
-    <a href="../../index.php" class="btn-primary">Menu</a>
+    <a href="vista_viajes.php" class="btn-primary">⬅ Volver</a>
     <div class="container">
         <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
             <h2>Crear Nuevo Viaje</h2>
