@@ -142,7 +142,7 @@ $id = $ctx['id'] ?? null;
                     <input type="text" name="descripcion[]" placeholder="Descripción">
                 </div>
             </div>
-            <button type="button" onclick="agregarGasto()">+ Línea</button>
+         <!--  <button type="button" onclick="agregarGasto()">+ Línea</button> -->
             <button type="submit" name="agregar_gasto">Guardar Gastos</button>
         </form>
 

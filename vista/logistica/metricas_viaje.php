@@ -11,7 +11,7 @@ $gastosPorTipo = $datos['gastosPorTipo'];
 $ingresoTotal = floatval($viaje['ingreso_total'] ?? 0);
 $totalGastos = array_sum(array_values($gastosPorTipo));
 $pagoChofer = floatval($viaje['pago_acordado_chofer'] ?? 0);
-$gananciaNeta = $ingresoTotal - $totalGastos - $pagoChofer;
+$gananciaNeta = $ingresoTotal - $totalGastos;
 $rentable = $gananciaNeta >= 0 ? "Sí" : "No";
 $rentabilidadPorc = $ingresoTotal > 0 ? ($gananciaNeta / $ingresoTotal) * 100 : 0;
 ?>

@@ -36,7 +36,7 @@ function normalize_estado($v)
 <div class="container">
     <div class="header">
         <h2>📊 Reporte de Viajes</h2>
-        <a href="vista_viajes.php" class="btn-primary">🏠 Menú</a>
+        <a href="vista_viajes.php" class="btn-primary"> <- Volver</a>
     </div>
 
     <!-- Totales y exportar -->

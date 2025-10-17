@@ -72,7 +72,7 @@ foreach ($viajes as $v) {
             <h2>📊 Contabilidad de Viajes</h2>
             <div class="header-actions">
                 <a href="reportes_viajes.php" class="btn-primary">📊 Reportes</a>
-                <a href="../../index.php" class="btn-primary">Menu</a>
+                <a href="../../index.php" class="btn-primary">Salir</a>
             </div>
         </div>
     </div>
@@ -91,10 +91,10 @@ foreach ($viajes as $v) {
             <h3>Completados</h3>
             <div class="number"><?= $counts['finalizado'] ?></div>
         </div>
-        <div class="stat-card">
+ <!--     <div class="stat-card">
             <h3>Ingresos Mes</h3>
             <div class="number">Q<?= number_format($ingresos_mes,2) ?></div>
-        </div>
+        </div> -->
     </div>
 
     <!-- Filtros -->
