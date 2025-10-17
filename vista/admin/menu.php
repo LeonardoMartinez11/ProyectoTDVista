@@ -51,7 +51,7 @@
 
         <!-- Botón de salida -->
         <div class="text-center mt-5">
-            <a href="../../index.php" class="btn btn-outline-danger px-4 py-2">
+            <a href="../../index.html" class="btn btn-outline-danger px-4 py-2">
                 <i class="fa-solid fa-right-from-bracket me-2"></i>Salir
             </a>
         </div>

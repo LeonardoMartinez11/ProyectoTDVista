@@ -120,7 +120,7 @@ foreach ($viajes as $v) {
                 <div class="header-actions">
                     <a href="crear_viajes.php" class="btn-primary">+ Nuevo Viaje</a>
                     <a href="reportes_viajes.php" class="btn-primary">📊 Reportes</a>
-                    <a href="../../index.php" class="btn-primary">Salir</a>
+                    <a href="../../index.html" class="btn-primary">Salir</a>
                 </div>
             </div>
         </div>

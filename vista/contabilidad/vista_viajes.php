@@ -72,7 +72,7 @@ foreach ($viajes as $v) {
             <h2>📊 Contabilidad de Viajes</h2>
             <div class="header-actions">
                 <a href="reportes_viajes.php" class="btn-primary">📊 Reportes</a>
-                <a href="../../index.php" class="btn-primary">Salir</a>
+                <a href="../../index.html" class="btn-primary">Salir</a>
             </div>
         </div>
     </div>
